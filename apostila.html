@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>
+<title>Apostila de Git</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;700&display=swap">
+<style>
+/* Layout: coluna única de leitura com índice no topo; blocos de comando escuros como o terminal */
+:root{
+  --bg:#f5f4f0; --surface:#fbfaf7; --surface-alt:#ecebe5; --line:#dcd9cf;
+  --ink:#1b2230; --ink-2:#596173;
+  --accent:#1f5c99; --accent-soft:#e3ecf6;
+  --ok:#2f7d4f; --ok-soft:#e2f1e8; --warn:#8a5a00; --warn-soft:#fbf1dc;
+  --code-bg:#1b2230; --code-fg:#e9ecf2; --code-muted:#93a0b5; --code-add:#8fd6a8; --code-del:#f1a3a3;
+  --display:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12161e; --surface:#181e28; --surface-alt:#212937; --line:#2e3746;
+  --ink:#e6e9ef; --ink-2:#a3abba; --accent:#8ab8e6; --accent-soft:#1d2d42;
+  --ok:#8fd6a8; --ok-soft:#183126; --warn:#e8c06a; --warn-soft:#352a12;
+  --code-bg:#0b0e14; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12161e; --surface:#181e28; --surface-alt:#212937; --line:#2e3746;
+  --ink:#e6e9ef; --ink-2:#a3abba; --accent:#8ab8e6; --accent-soft:#1d2d42;
+  --ok:#8fd6a8; --ok-soft:#183126; --warn:#e8c06a; --warn-soft:#352a12;
+  --code-bg:#0b0e14; color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.65 var(--body)}
+.wrap{max-width:820px;margin:0 auto;padding-block:40px 80px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:48px}
+h1,h2,h3{font-family:var(--display);font-weight:700;text-wrap:balance;line-height:1.2;margin:0}
+h1{font-size:clamp(1.9rem,5.5vw,2.6rem);letter-spacing:-.015em}
+h2{font-size:1.5rem}
+h3{font-size:1.08rem}
+p{margin:0;max-width:68ch}
+section{display:flex;flex-direction:column;gap:16px;min-width:0}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+code{font-family:var(--mono);font-size:.88em;background:var(--surface-alt);padding:1px 5px;border-radius:4px;overflow-wrap:anywhere}
+kbd{font-family:var(--mono);font-size:.82em;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px;background:var(--surface)}
+.eyebrow{font:600 .76rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.lede{font-size:1.12rem;color:var(--ink-2)}
+ul,ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px;max-width:68ch}
+pre{margin:0;background:var(--code-bg);color:var(--code-fg);font:13.5px/1.6 var(--mono);padding:14px 16px;border-radius:8px;overflow-x:auto}
+pre .c{color:var(--code-muted)} pre .add{color:var(--code-add)} pre .del{color:var(--code-del)}
+.cmd{position:relative;min-width:0}
+.cmd pre{padding-right:76px}
+.copy{position:absolute;top:8px;right:8px;font:600 .72rem var(--mono);background:var(--code-bg);color:var(--code-muted);border:1px solid var(--code-muted);border-radius:5px;padding:3px 8px;cursor:pointer}
+.copy:hover{color:var(--code-fg);border-color:var(--code-fg)}
+.tablebox{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:700}
+td code{white-space:nowrap}
+.note{border:1px solid var(--line);border-radius:8px;padding:14px 16px;background:var(--surface);display:flex;flex-direction:column;gap:8px}
+.note.warn{background:var(--warn-soft);border-color:transparent}
+.note.ok{background:var(--ok-soft);border-color:transparent}
+.note strong:first-child{font-family:var(--display)}
+.vscode{border-left:3px solid var(--accent);padding:4px 0 4px 14px;display:flex;flex-direction:column;gap:6px}
+.vscode .eyebrow{color:var(--accent)}
+.toc{display:flex;flex-wrap:wrap;gap:8px}
+.toc a{font:500 .88rem var(--body);text-decoration:none;padding:4px 10px;border-radius:999px;background:var(--surface-alt);color:var(--ink)}
+.toc a:hover{background:var(--accent-soft)}
+.ex{border-top:1px solid var(--line);padding-top:32px}
+.check{display:flex;gap:10px;align-items:flex-start}
+.check input{margin-top:6px;width:18px;height:18px;accent-color:var(--ok)}
+.areas{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;align-items:stretch}
+.areas div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:4px}
+.areas b{font-family:var(--display)}
+.areas small{color:var(--ink-2);font-size:.86rem;line-height:1.45}
+.areas i{font:500 .8rem var(--mono);color:var(--accent);font-style:normal}
+@media print{.copy,.toc{display:none}}
+.topo-pagina{display:flex;flex-direction:column;gap:14px}
+.pt{color:var(--ink-2);font-size:.9em}
+.fala{background:var(--ok-soft);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.fala .eyebrow{color:var(--ink-2)}
+.fala p{font-style:italic}
+</style>
+<div class="wrap">
+
+<header class="topo-pagina">
+  <p class="eyebrow">Treinamento trainee · Git e frontend</p>
+  <h1>Git na prática</h1>
+  <p class="lede">Você vai criar uma página web, guardar cada versão dela com Git, publicar no GitHub e colocar seu cartão no mural da turma por um pull request. No fim, vai ver o que são componentes, a ideia por trás do frontend moderno.</p>
+  <nav class="toc" aria-label="Seções">
+    <a href="#antes">Preparar o ambiente</a>
+    <a href="#vocabulario">Vocabulário</a>
+    <a href="#conceitos">Conceitos</a>
+    <a href="#ex1">1 · Primeiros commits</a>
+    <a href="#ex2">2 · Branch e conflito</a>
+    <a href="#ex3">3 · GitHub</a>
+    <a href="#ex4">4 · Pull request</a>
+    <a href="#ex5">5 · Frontend e componentes</a>
+    <a href="#depois">Depois da aula</a>
+  </nav>
+</header>
+
+<section id="antes">
+  <h2>Preparar o ambiente</h2>
+  <p>Neste treinamento todo mundo usa o mesmo ambiente: o <strong>GitHub Codespaces</strong>, um editor de código completo que roda no navegador (o <strong>VS Code</strong>), com terminal e Git já instalados. Você não instala nada, e o que funciona para um funciona para todos.</p>
+  <ol>
+    <li>Crie uma conta gratuita no <a href="https://github.com/signup">GitHub</a> e confirme o e-mail. Anote seu nome de usuário e entregue ao instrutor.</li>
+    <li>Crie o repositório que vai abrigar o seu Codespace. Em <a href="https://github.com/new">github.com/new</a>, dê o nome <code>codespace-aula</code>, deixe como <strong>Public</strong> (público), marque <strong>Add a README file</strong> (adicionar um arquivo de apresentação) e clique em <strong>Create repository</strong> (criar repositório). O Codespace precisa de um repositório com pelo menos um commit, e o README é esse commit.</li>
+    <li>No repositório, clique no botão verde <strong>Code</strong> (código) › aba <strong>Codespaces</strong> › <strong>Create codespace on main</strong> (criar codespace na main). Em cerca de um minuto, o editor abre no navegador.</li>
+    <li>Opcional: deixe o editor em português. Abra o menu <strong>☰ › View › Command Palette</strong> (paleta de comandos), digite <code>Configure Display Language</code> (configurar o idioma de exibição) e escolha <strong>Português (Brasil)</strong>. Se o idioma não mudar, siga em inglês: a apostila traz a tradução dos nomes.</li>
+  </ol>
+  <p>Para conferir, quando o Codespace abrir, abra o terminal dele (ele costuma já vir aberto embaixo; se não, use o ícone <strong>☰</strong> no alto à esquerda › <strong>Terminal › Novo Terminal</strong>. O atalho de teclado para abrir um terminal não funciona no Codespace do navegador) e rode:</p>
+  <div class="cmd"><pre>git --version   # version = versão: mostra a versão do Git instalada</pre></div>
+  <p>Se aparecer algo como <code>git version 2.47.1</code>, está pronto.</p>
+  <div class="note">
+    <strong>Como o Codespace funciona</strong>
+    <p>Ele para sozinho depois de 30 minutos sem uso, mas guarda tudo o que você fez. Para voltar, abra <a href="https://github.com/codespaces">github.com/codespaces</a> e clique no seu Codespace. A conta gratuita dá horas de uso de sobra para o treinamento.</p>
+  </div>
+
+  <h3>Configure seu nome e e-mail</h3>
+  <p>O Git grava seu nome e e-mail em cada commit. Use o mesmo e-mail da sua conta do GitHub. A configuração fica guardada dentro do seu Codespace. O Codespace não traz nome nem e-mail: você digita os dois. Se criar outro Codespace, refaça.</p>
+  <p>Primeiro, <strong>digite</strong> as duas linhas abaixo, uma de cada vez, com o seu nome e o seu e-mail no lugar dos exemplos, e aperte <kbd>Enter</kbd> depois de cada uma:</p>
+  <pre>git config --global user.name "Seu Nome"                # config = configuração; user.name = nome do usuário
+git config --global user.email "seu-email@exemplo.com"  # user.email = e-mail do usuário</pre>
+  <p>Depois, copie e cole estas três, que são iguais para todo mundo:</p>
+  <div class="cmd"><pre>git config --global init.defaultBranch main             # a branch padrão (default) se chama main
+git config --global core.editor "code --wait"           # editor = o Git abre o editor quando precisar de um texto
+git config --global pull.rebase false                   # pull = puxar: ao puxar, junta as mudanças com merge (mesclar)</pre></div>
+  <p>Para conferir, rode <code>git config --global user.name</code>: deve aparecer o seu nome, e não “Seu Nome”.</p>
+  <p><code>--global</code> (global) quer dizer que a configuração vale para todos os repositórios deste Codespace. A linha do <code>core.editor</code> evita que o Git abra o Vim, um editor de terminal difícil de fechar para quem nunca usou. Se ele abrir mesmo assim, aperte <kbd>Esc</kbd>, digite <code>:wq</code> e aperte <kbd>Enter</kbd> para salvar e sair. A linha do <code>pull.rebase</code> diz ao Git como juntar o seu trabalho com o do GitHub quando os dois mudaram; sem ela, o <code>git pull</code> pode parar com <code>Need to specify how to reconcile divergent branches</code> (“é preciso dizer como reconciliar branches que divergiram”).</p>
+</section>
+
+<section id="vocabulario">
+  <h2>Vocabulário</h2>
+  <p>O Git, o GitHub e o mercado usam palavras em inglês. Você não precisa traduzir ao falar, mas precisa saber o que cada uma quer dizer.</p>
+  <div class="tablebox"><table>
+    <thead><tr><th>Palavra</th><th>Tradução</th><th>No Git</th></tr></thead>
+    <tbody>
+      <tr><td>repository</td><td>repositório, depósito</td><td>A pasta do projeto com todo o histórico.</td></tr>
+      <tr><td>commit</td><td>registrar, confirmar</td><td>Uma versão gravada no histórico.</td></tr>
+      <tr><td>stage</td><td>palco, preparação</td><td>A área do que vai entrar no próximo commit.</td></tr>
+      <tr><td>branch</td><td>ramo, galho</td><td>Uma linha de trabalho separada.</td></tr>
+      <tr><td>main</td><td>principal</td><td>A branch principal do projeto.</td></tr>
+      <tr><td>develop</td><td>desenvolver; aqui, desenvolvimento</td><td>A branch onde o trabalho do time se junta, antes de ir para a main.</td></tr>
+      <tr><td>release</td><td>lançamento</td><td>Uma nova versão publicada: a develop vai para a main.</td></tr>
+      <tr><td>merge</td><td>mesclar, fundir</td><td>Juntar uma branch em outra.</td></tr>
+      <tr><td>conflict</td><td>conflito</td><td>Duas versões diferentes da mesma linha.</td></tr>
+      <tr><td>remote</td><td>remoto, distante</td><td>Uma cópia do repositório em outro lugar.</td></tr>
+      <tr><td>origin</td><td>origem</td><td>O nome padrão do remoto, em geral o GitHub.</td></tr>
+      <tr><td>push</td><td>empurrar</td><td>Enviar seus commits para o remoto.</td></tr>
+      <tr><td>pull</td><td>puxar</td><td>Trazer os commits do remoto para o seu Codespace.</td></tr>
+      <tr><td>clone</td><td>clonar, copiar</td><td>Baixar uma cópia completa de um repositório.</td></tr>
+      <tr><td>pull request</td><td>pedido para juntar (ao pé da letra, “pedido para puxar”)</td><td>Pedido para juntar sua branch em outra (no mural, na develop), com revisão.</td></tr>
+      <tr><td>review</td><td>revisão</td><td>A leitura do pull request por outra pessoa.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="conceitos">
+  <h2>Conceitos</h2>
+  <h3>As três áreas do Git, e o GitHub</h3>
+  <p>No seu Codespace, todo arquivo passa por três lugares antes de virar histórico: a pasta de trabalho, a preparação e o repositório local. O GitHub é uma quarta parada, fora do Codespace, para onde o histórico vai quando você o envia:</p>
+  <div class="areas">
+    <div><b>Pasta de trabalho</b><small>Os arquivos que você edita no editor.</small><i>git add →</i></div>
+    <div><b>Área de preparação</b><small>O que vai entrar no próximo commit. Em inglês, stage.</small><i>git commit →</i></div>
+    <div><b>Repositório local</b><small>O histórico de commits no seu Codespace.</small><i>git push →</i></div>
+    <div><b>GitHub</b><small>O repositório remoto, que o time compartilha.</small><i>← git pull</i></div>
+  </div>
+  <p>Quando estiver em dúvida, rode <code>git status</code> (status = situação). Ele diz em que área cada arquivo está e qual comando usar em seguida.</p>
+  <div class="note">
+    <strong>Como ler os comandos desta apostila</strong>
+    <p>Tudo depois de <code>#</code> é um comentário com a tradução e o que o comando faz. O terminal ignora o comentário, então você pode copiar o bloco inteiro.</p>
+    <p>Para colar no terminal do Codespace, o atalho <kbd>Ctrl</kbd>+<kbd>V</kbd> não funciona: clique com o botão direito do mouse no terminal e depois no botão <strong>Paste</strong> (colar) que aparecer. Se o <code>git log</code> ou o <code>git diff</code> encherem a tela e o terminal mostrar <code>:</code> ou <code>(END)</code> (fim) e parar, aperte <kbd>q</kbd> (de quit, sair).</p>
+  </div>
+</section>
+
+<section id="ex1" class="ex">
+  <p class="eyebrow">Exercício 1 · 28 min</p>
+  <h2>Primeiros commits</h2>
+  <p><strong>Objetivo:</strong> criar um repositório com uma página HTML e registrar duas versões dela.</p>
+  <ol>
+    <li>Abra o terminal do Codespace, crie a pasta do projeto e entre nela:
+      <div class="cmd"><pre>cd /workspaces/codespace-aula   # cd = change directory, mudar de pasta: vai para a pasta do seu Codespace
+mkdir primeiro-repo            # mkdir = make directory, criar pasta
+cd primeiro-repo               # entra na pasta nova
+git init -b main               # init = iniciar: transforma a pasta em repositório, com a branch main</pre></div>
+      <p>A mensagem <code>Initialized empty Git repository</code> quer dizer “repositório Git vazio iniciado”. A pasta <code>primeiro-repo</code> aparece no Explorador (a barra da esquerda), dentro de <code>codespace-aula</code>. Daqui em diante, os comandos continuam neste terminal. No Explorador, clique com o botão direito em <code>primeiro-repo</code> e escolha <strong>New File</strong> (novo arquivo) para criar arquivos. Se o terminal sair da pasta, volte com <code>cd /workspaces/codespace-aula/primeiro-repo</code>. Nunca faça commit na pasta <code>codespace-aula</code>: ela só serve de casa para o Codespace.</p>
+    </li>
+    <li>No editor, crie o arquivo <code>index.html</code> com este conteúdo, trocando pelo seu nome, e salve com <kbd>Ctrl</kbd>+<kbd>S</kbd>:
+      <div class="cmd"><pre>&lt;!doctype html&gt;
+&lt;html lang="pt-BR"&gt;
+&lt;head&gt;
+  &lt;meta charset="utf-8"&gt;
+  &lt;title&gt;Página da Ana&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+  &lt;h1&gt;Olá, eu sou a Ana&lt;/h1&gt;
+  &lt;p&gt;Estou aprendendo Git.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre></div>
+    </li>
+    <li>Veja o que o Git percebeu:
+      <div class="cmd"><pre>git status   # status = situação: o que mudou e o que está preparado</pre></div>
+      <p>A saída começa com <code>On branch main</code> (“na branch main”) e <code>No commits yet</code> (“ainda sem commits”). O arquivo aparece em vermelho, em <code>Untracked files</code>: “arquivos não acompanhados”. O Git vê o arquivo, mas ainda não guarda as versões dele.</p>
+    </li>
+    <li>Coloque o arquivo na área de preparação e confira de novo:
+      <div class="cmd"><pre>git add index.html   # add = adicionar: põe o arquivo na preparação
+git status           # agora em verde, em "Changes to be committed": mudanças prontas para o commit</pre></div>
+    </li>
+    <li>Faça o primeiro commit:
+      <div class="cmd"><pre>git commit -m "Cria minha página"   # commit = registrar; -m = message, a mensagem que explica a mudança</pre></div>
+      <p>A resposta <code>1 file changed, 11 insertions(+)</code> quer dizer “1 arquivo alterado, 11 linhas inseridas”; <code>root-commit</code> é o commit raiz, o primeiro do histórico. Sempre use o <code>-m</code>: sem ele, o Git abre uma aba no editor e o terminal fica parado em <code>Waiting for your editor to close the file...</code> (“esperando você fechar o arquivo no editor”). Nesse caso, escreva a mensagem na primeira linha da aba, salve e feche a aba.</p>
+    </li>
+    <li>Edite a página: acrescente uma linha logo abaixo do <code>&lt;p&gt;</code>, com algo de que você gosta, e salve com <kbd>Ctrl</kbd>+<kbd>S</kbd>.
+      <div class="cmd"><pre>  &lt;p&gt;Gosto de café e de futebol.&lt;/p&gt;</pre></div>
+    </li>
+    <li>Veja a situação e exatamente o que mudou:
+      <div class="cmd"><pre>git status   # agora mostra "Changes not staged for commit": mudanças ainda não preparadas; modified = modificado
+git diff     # diff = difference, diferença: linhas com + entraram, com - saíram</pre></div>
+      <p>No fim da saída pode aparecer <code>\ No newline at end of file</code> (“sem quebra de linha no fim do arquivo”). É só um aviso: o arquivo termina sem uma linha em branco. Pode ignorar.</p>
+    </li>
+    <li>Registre a segunda versão e veja o histórico.
+      <div class="cmd"><pre>git add .                            # o ponto (.) quer dizer "tudo nesta pasta"
+git commit -m "Adiciona meus gostos"
+git log --oneline                    # log = diário de bordo: o histórico; --oneline = uma linha por commit</pre></div>
+    </li>
+    <li>Agora estrague a página de propósito: apague a linha do <code>&lt;h1&gt;</code> e salve. Para voltar ao que estava no último commit:
+      <div class="cmd"><pre>git status              # modified: index.html (modificado)
+git restore index.html  # restore = restaurar: volta o arquivo ao último commit</pre></div>
+      <p>O título volta. O <code>git restore</code> descarta as mudanças que ainda não foram preparadas, e não tem volta: use quando quiser mesmo jogar fora o que fez desde o último commit. Se você já tinha rodado <code>git add</code>, rode antes <code>git restore --staged index.html</code> (tira da preparação) e depois o <code>git restore index.html</code>.</p>
+    </li>
+  </ol>
+  <div class="note ok">
+    <strong>Confira</strong>
+    <p><code>git log --oneline</code> mostra dois commits, o mais novo em cima, e o título voltou depois do <code>git restore</code>.</p>
+  </div>
+  <div class="note warn">
+    <strong>O painel Source Control</strong>
+    <p>O <code>primeiro-repo</code> pode aparecer no painel <strong>Source Control</strong> (controle do código-fonte, o ícone de ramos na barra da esquerda), às vezes com um botão <strong>Publish Branch</strong> (publicar a branch). Ignore o painel e não clique nesse botão: neste treinamento, tudo é pelo terminal, e o envio para o GitHub fica para o exercício 3.</p>
+  </div>
+  <div class="note">
+    <strong>Boas mensagens de commit</strong>
+    <p>Comece com um verbo e diga o que mudou: <code>Adiciona meus gostos</code>, <code>Corrige o título</code>. Evite <code>ajustes</code>, <code>teste</code> ou <code>asdf</code>: daqui a um mês ninguém vai saber o que foi feito.</p>
+  </div>
+</section>
+
+<section id="ex2" class="ex">
+  <p class="eyebrow">Exercício 2 · 30 min</p>
+  <h2>Branch, merge e conflito</h2>
+  <p><strong>Objetivo:</strong> trabalhar numa branch (ramo), juntar na <code>main</code> e resolver um conflito.</p>
+
+  <h3>Parte A: um merge sem conflito</h3>
+  <ol>
+    <li>Crie a branch <code>rodape</code> e passe a trabalhar nela:
+      <div class="cmd"><pre>git switch -c rodape   # switch = trocar; -c = create, criar: cria a branch e troca para ela</pre></div>
+      <p>O Git responde <code>Switched to a new branch 'rodape'</code>: “trocou para uma branch nova, a rodape”.</p>
+    </li>
+    <li>Acrescente um rodapé antes de <code>&lt;/body&gt;</code>, salve e faça o commit:
+      <div class="cmd"><pre>  &lt;footer&gt;Feito durante o treinamento de Git.&lt;/footer&gt;</pre></div>
+      <div class="cmd"><pre>git add .
+git commit -m "Adiciona rodapé"</pre></div>
+    </li>
+    <li>Confira que o commit foi feito e volte para a <code>main</code>. Repare que o rodapé some do arquivo no editor: ele só existe na branch <code>rodape</code>.
+      <div class="cmd"><pre>git status        # tem que dizer "nothing to commit, working tree clean": nada para registrar, pasta limpa
+git switch main   # troca para a branch main</pre></div>
+    </li>
+    <li>Junte a branch na <code>main</code>. O rodapé volta:
+      <div class="cmd"><pre>git merge rodape   # merge = mesclar: traz os commits da rodape para a branch atual</pre></div>
+      <p>A saída diz <code>Fast-forward</code> (“avanço rápido”): como a <code>main</code> não mudou desde que a <code>rodape</code> nasceu, o Git só a avançou até o commit do rodapé, sem criar um commit de merge.</p>
+    </li>
+  </ol>
+
+  <h3>Parte B: um conflito de propósito</h3>
+  <p>Um conflito acontece quando duas branches mudam a mesma linha. O Git não escolhe por você: ele marca o trecho e espera sua decisão.</p>
+  <ol>
+    <li>Crie a branch <code>titulo-novo</code>:
+      <div class="cmd"><pre>git switch -c titulo-novo</pre></div>
+    </li>
+    <li>No editor, troque o texto do <code>&lt;h1&gt;</code> para <code>Oi! Meu nome é Ana</code>, salve e faça o commit:
+      <div class="cmd"><pre>git add .
+git commit -m "Muda o título"</pre></div>
+    </li>
+    <li>Confira e volte para a <code>main</code>:
+      <div class="cmd"><pre>git status        # de novo: "nothing to commit, working tree clean"
+git switch main</pre></div>
+    </li>
+    <li>Troque a <strong>mesma linha</strong> por outro texto, <code>Bem-vindo à página da Ana</code>, salve e faça o commit:
+      <div class="cmd"><pre>git add .
+git commit -m "Muda o título na main"</pre></div>
+    </li>
+    <li>Tente juntar:
+      <div class="cmd"><pre>git merge titulo-novo</pre></div>
+      <p>O Git avisa o conflito:</p>
+      <pre><span class="c">Auto-merging index.html</span>
+CONFLICT (content): Merge conflict in index.html
+Automatic merge failed; fix conflicts and then commit the result.</pre>
+      <p>Em português: “Mesclando automaticamente o index.html. Conflito de conteúdo no index.html. A mesclagem automática falhou; corrija os conflitos e faça o commit do resultado.” Se rodar <code>git status</code> agora, o arquivo aparece em <code>Unmerged paths</code> (“arquivos não mesclados”) como <code>both modified</code> (“modificado nos dois lados”).</p>
+    </li>
+    <li>Abra o <code>index.html</code>. O trecho em conflito aparece assim:
+      <pre><span class="del">&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</span>
+  &lt;h1&gt;Bem-vindo à página da Ana&lt;/h1&gt;
+<span class="del">=======</span>
+  &lt;h1&gt;Oi! Meu nome é Ana&lt;/h1&gt;
+<span class="del">&gt;&gt;&gt;&gt;&gt;&gt;&gt; titulo-novo</span></pre>
+      <p>Em cima está a versão da <code>main</code>. <code>HEAD</code> quer dizer “cabeça”: é onde você está agora. Embaixo, a versão da branch que chega.</p>
+    </li>
+    <li>Escolha uma versão, ou escreva uma terceira, e apague as três linhas de marcação. Salve. Quer treinar os dois jeitos? Antes do próximo passo, rode <code>git merge --abort</code>, repita o <code>git merge titulo-novo</code> e resolva agora pelos botões do editor (veja o quadro abaixo).</li>
+    <li>Conclua o merge:
+      <div class="cmd"><pre>git add index.html                  # avisa ao Git que o conflito está resolvido
+git commit -m "Junta o título novo"
+git log --oneline --graph --all     # --graph = desenha as branches; --all = mostra todas</pre></div>
+    </li>
+  </ol>
+  <div class="vscode">
+    <p class="eyebrow">No editor</p>
+    <p>Acima do conflito aparecem os botões <strong>Accept Current Change</strong> (aceitar a alteração atual: fica a da <code>main</code>), <strong>Accept Incoming Change</strong> (aceitar a alteração que chega: fica a da branch que chega) e <strong>Accept Both Changes</strong> (aceitar as duas). Com o editor em português, eles se chamam <strong>Aceitar Alteração Atual</strong>, <strong>Aceitar Alteração de Entrada</strong> e <strong>Aceitar Ambas as Alterações</strong>. Pode aparecer também o botão <strong>Resolve in Merge Editor</strong> (resolver no editor de mesclagem), que abre uma tela de três painéis; para hoje, use os botões acima do conflito. A branch atual aparece no canto inferior esquerdo; clique nela para trocar ou criar branches.</p>
+  </div>
+  <div class="note ok">
+    <strong>Confira</strong>
+    <p>O <code>git log --graph</code> desenha duas linhas que se juntam no commit “Junta o título novo”, e o arquivo não tem mais nenhum <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>.</p>
+    <p>Os nomes entre parênteses no log mostram em que commit está cada branch: <code>(titulo-novo)</code>, <code>(rodape)</code>. <code>(HEAD -&gt; main)</code> quer dizer que você está na <code>main</code>, e ela está nesse commit.</p>
+  </div>
+  <div class="note warn">
+    <strong>Se der errado</strong>
+    <p>Para desistir do merge e voltar ao estado anterior, rode <code>git merge --abort</code> (abort = cancelar).</p>
+    <p>O merge não deu conflito? Provavelmente você trocou de branch sem salvar ou sem fazer o commit, e a mudança foi junto para a <code>main</code>. Por isso o <code>git status</code> antes de cada <code>git switch</code>.</p>
+    <p>No terminal, o nome entre parênteses no fim da linha é a branch atual, como <code>(main)</code>. Durante um conflito ele continua <code>(main)</code>, sem avisar que há um merge em andamento. Para saber, rode <code>git status</code>: enquanto o merge não terminar, ele fala em <code>Unmerged paths</code> ou em <code>still merging</code> (“ainda mesclando”).</p>
+  </div>
+</section>
+
+<section id="ex3" class="ex">
+  <p class="eyebrow">Exercício 3 · 25 min</p>
+  <h2>Publicar no GitHub</h2>
+  <p><strong>Objetivo:</strong> enviar o repositório para o GitHub, ver a página no ar e trazer de volta uma mudança feita no site.</p>
+  <ol>
+    <li>No GitHub, clique em <strong>New</strong> (novo), ou no <strong>+</strong> do canto superior direito › <strong>New repository</strong> (novo repositório). Dê o nome <code>primeiro-repo</code>, deixe como <strong>Public</strong> (público) e <strong>não</strong> marque a opção de README (<strong>Add a README file</strong> ou <strong>Add README</strong>, adicionar um arquivo de apresentação). Clique em <strong>Create repository</strong> (criar repositório).</li>
+    <li>Entre no GitHub pelo terminal. O Codespace já está ligado à sua conta, mas só ao repositório <code>codespace-aula</code>; para enviar o <code>primeiro-repo</code>, é preciso fazer o login. Rode:
+      <div class="cmd"><pre>cd /workspaces/codespace-aula/primeiro-repo
+unset GITHUB_TOKEN   # unset = desfazer: tira do terminal a chave que só vale para o codespace-aula
+gh auth login        # gh = GitHub (CLI); auth login = autenticar, entrar na conta
+gh auth setup-git    # setup-git = configurar o Git: faz o git push usar esse login</pre></div>
+      <p>Responda às perguntas com as setas e o <kbd>Enter</kbd>: <strong>GitHub.com</strong>; <strong>Login with a web browser</strong> (entrar pelo navegador); <strong>HTTPS</strong>; <strong>Y</strong> para <em>Authenticate Git with your GitHub credentials?</em> (autenticar o Git com as suas credenciais). No meio pode aparecer uma dica que começa com <code>Did you know</code> (“você sabia”): é só informação, siga em frente. O terminal mostra um código de 8 caracteres: copie, aperte <kbd>Enter</kbd>, abra o endereço <code>github.com/login/device</code> numa aba nova, cole o código e autorize. Quando o terminal disser <code>Logged in as SEU-USUARIO</code> (conectado como), rode o <code>gh auth setup-git</code>. Ele não mostra nada quando dá certo, mas não pule: sem ele, o <code>push</code> falha mesmo com o login feito. Se abrir um terminal novo, rode o <code>unset GITHUB_TOKEN</code> nele antes do <code>push</code>.</p>
+    </li>
+    <li>Ligue seu repositório local ao do GitHub e envie os commits, trocando <code>SEU-USUARIO</code>:
+      <p>O GitHub mostra o endereço do repositório numa página chamada <strong>Quick setup</strong> (configuração rápida); deixe marcado <strong>HTTPS</strong> e copie de lá. Cole o endereço no lugar do exemplo:</p>
+      <pre>git remote add origin https://github.com/SEU-USUARIO/primeiro-repo.git   # remote add = adicionar remoto, com o nome origin (origem)</pre>
+      <div class="cmd"><pre>git push -u origin main   # push = empurrar: envia a main para a origin</pre></div>
+      <p>O <code>-u</code> (de upstream, “rio acima”) liga a sua <code>main</code> à <code>main</code> do GitHub. Depois disso, basta <code>git push</code> e <code>git pull</code>.</p>
+      <p>O GitHub não aceita mais a senha da conta no terminal; é por isso que o login é feito pelo navegador.</p>
+    </li>
+    <li>Recarregue a página do repositório no GitHub. Os arquivos e os commits estão lá.</li>
+    <li>Publique a página: em <strong>Settings › Pages</strong> (configurações › páginas), em <strong>Source</strong> (origem), deixe <strong>Deploy from a branch</strong> (publicar a partir de uma branch), que já vem marcado. Escolha a branch <code>main</code> (no lugar de <strong>None</strong>, nenhuma) e a pasta <code>/ (root)</code> (a raiz), e clique em <strong>Save</strong> (salvar). Depois de um ou dois minutos, a página fica em <code>https://SEU-USUARIO.github.io/primeiro-repo/</code>.</li>
+    <li>Edite pelo site: abra o <code>index.html</code> no GitHub, clique no lápis (<strong>Edit this file</strong>, editar este arquivo), mude o texto do rodapé e clique em <strong>Commit changes...</strong> (registrar as mudanças). Na janela que abre, clique de novo em <strong>Commit changes</strong> para confirmar. Agora o GitHub tem um commit que o seu Codespace não tem.</li>
+    <li>Traga a mudança para o seu Codespace:
+      <div class="cmd"><pre>git pull   # pull = puxar: traz os commits novos do GitHub e junta na sua branch</pre></div>
+    </li>
+  </ol>
+  <div class="note ok">
+    <strong>Confira</strong>
+    <p>O rodapé que você mudou no site aparece no editor, e <code>git status</code> diz <code>Your branch is up to date with 'origin/main'</code>: “sua branch está atualizada com a origin/main”.</p>
+  </div>
+  <div class="note warn">
+    <strong>Erros comuns</strong>
+    <ul>
+      <li><code>rejected ... fetch first</code> (“recusado: busque antes”): o GitHub tem commits que você não tem. Rode <code>git pull</code> e depois o <code>push</code>. Se o <code>pull</code> abrir uma aba no editor com a mensagem <code>Merge branch 'main'...</code> (“mescla a branch main”), feche a aba para concluir.</li>
+      <li><code>Missing or invalid credentials</code> (“credenciais ausentes ou inválidas”), seguido de um bloco com <code>ECONNREFUSED</code> e de <code>No anonymous write access</code> (“sem acesso de escrita anônimo”) ou <code>Authentication failed</code> (“falha na autenticação”): o Git ficou sem o seu login. Rode <code>unset GITHUB_TOKEN</code> e <code>gh auth setup-git</code> e tente o <code>push</code> de novo. Se continuar, refaça o <code>gh auth login</code>.</li>
+      <li><code>Permission to ... denied</code> ou erro <code>403</code> (“permissão negada”): o terminal voltou a usar a chave do <code>codespace-aula</code>, o que acontece em todo terminal novo e quando o Codespace reinicia. Rode <code>unset GITHUB_TOKEN</code> e o <code>push</code> de novo.</li>
+      <li><code>remote origin already exists</code> (“o remoto origin já existe”): o remoto já foi adicionado. Confira o endereço com <code>git remote -v</code> (v = verbose, detalhado: mostra os remotos). Se estiver certo, siga para o <code>push</code>.</li>
+      <li><code>Repository not found</code> (“repositório não encontrado”): o endereço está errado. Veja com <code>git remote -v</code> e corrija com <code>git remote set-url origin ENDERECO-CERTO</code> (set-url = definir o endereço). Depois, rode o <code>push</code> de novo.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="ex4" class="ex">
+  <p class="eyebrow">Exercício 4 · 30 min</p>
+  <h2>Seu cartão no mural por pull request</h2>
+  <p><strong>Objetivo:</strong> colaborar num repositório da turma do jeito que os times trabalham: branch, push, pull request, revisão, merge e release.</p>
+  <div class="note">
+    <strong>develop e main</strong>
+    <p>Nos exercícios 1 a 3 você trabalhou sozinho, direto na <code>main</code>. Num time, é comum ter duas branches fixas. A <code>develop</code> (desenvolvimento) recebe o trabalho do dia a dia, sempre por pull request. A <code>main</code> (principal) é o que está publicado para os usuários, e só recebe a <code>develop</code> num <strong>release</strong> (lançamento de uma nova versão). O mural funciona assim: o seu cartão vai para a <code>develop</code>, e o GitHub Pages publica a <code>main</code>. Alguns times não usam a <code>develop</code> e trabalham direto a partir da <code>main</code>; no seu time, pergunte qual é o fluxo.</p>
+  </div>
+  <p>Antes, aceite o convite para colaborar no repositório <code>mural-da-turma</code>. Ele chega no seu e-mail e em <a href="https://github.com/notifications">github.com/notifications</a>, com o botão <strong>Accept invitation</strong> (aceitar convite). Se não achar, abra direto <code>github.com/pabloregis/mural-da-turma/invitations</code>. Pegue com o instrutor o número da sua vaga.</p>
+  <ol>
+    <li>Baixe o repositório da turma. Use o endereço abaixo (se o instrutor passar outro, use o dele):
+      <div class="cmd"><pre>cd /workspaces/codespace-aula   # sai do primeiro-repo e volta para a pasta do Codespace</pre></div>
+      <pre>git clone https://github.com/pabloregis/mural-da-turma.git   # clone = clonar: baixa uma cópia completa</pre>
+      <div class="cmd"><pre>cd mural-da-turma</pre></div>
+      <p>A pasta <code>mural-da-turma</code> aparece no Explorador. O login do exercício 3 continua valendo; se abrir um terminal novo, rode o <code>unset GITHUB_TOKEN</code> nele.</p>
+    </li>
+    <li>Crie sua branch, com <strong>o seu nome</strong> no lugar de <code>SEU-NOME</code>, sem espaços nem acentos (por exemplo, <code>cartao-joao</code>). Cada pessoa precisa de uma branch com nome diferente:
+      <pre>git switch develop              # garante que você está na develop (desenvolvimento)
+git switch -c cartao-SEU-NOME   # cria a branch do seu cartão a partir da develop e troca para ela</pre>
+    </li>
+    <li>No Explorador, abra a pasta <code>mural-da-turma</code> e clique no <code>index.html</code> para abri-lo. Ache a sua vaga e troque <strong>só a linha do <code>&lt;li&gt;</code></strong>. Não apague o comentário <code>&lt;!-- vaga NN --&gt;</code>: é ele que separa a sua linha da do colega e evita conflito. No exemplo abaixo, a linha com <code>-</code> sai e a linha com <code>+</code> entra: não digite os sinais.
+      <pre><span class="c">    &lt;!-- vaga 07 --&gt;</span>
+<span class="del">-   &lt;li class="vazia"&gt;Vaga 07&lt;/li&gt;</span>
+<span class="add">+   &lt;li&gt;&lt;strong&gt;Ana&lt;/strong&gt; Gosto de café e de futebol.&lt;/li&gt;</span></pre>
+    </li>
+    <li>Faça o commit e envie a branch, trocando o nome na mensagem e no <code>push</code>:
+      <pre>git add index.html
+git commit -m "Adiciona o cartão de SEU-NOME"
+git push -u origin cartao-SEU-NOME   # envia a sua branch para o GitHub</pre>
+    </li>
+    <li>Abra a página do <code>mural-da-turma</code> no GitHub (recarregue, se já estava aberta) e clique em <strong>Compare &amp; pull request</strong> (comparar e pedir o merge). No alto da página, confira: <strong>base: develop</strong> (a branch que recebe) e <strong>compare: cartao-SEU-NOME</strong> (a que chega). Se o botão não aparecer, use o endereço que o próprio <code>push</code> mostrou, depois de <code>Create a pull request for 'cartao-SEU-NOME' on GitHub by visiting:</code> (“crie um pull request para a sua branch visitando:”). O título já vem com a mensagem do commit. Na descrição, escreva o que você mudou, trocando o número pelo da sua vaga:
+      <div class="cmd"><pre>Preenche a vaga NN do mural com o meu cartão.</pre></div>
+      <p>Clique em <strong>Create pull request</strong> (criar o pull request).</p></li>
+    <li>Espere a revisão. O instrutor pode pedir uma mudança (<strong>Changes requested</strong>, “mudanças pedidas”): nesse caso, edite, faça outro commit e outro <code>git push</code>. O pull request se atualiza sozinho. Não faça o merge do seu próprio pull request: quem faz é o instrutor.</li>
+    <li>Depois do merge, atualize sua <code>develop</code>:
+      <div class="cmd"><pre>git switch develop
+git pull   # traz para o seu Codespace os cartões de todos</pre></div>
+      <p>O <code>git switch develop</code> pode dizer <code>Your branch is up to date with 'origin/develop'</code> (“sua branch está atualizada”) mesmo havendo cartões novos. Ele compara com a última vez que o Codespace consultou o GitHub, não com o GitHub de agora. Por isso, rode o <code>git pull</code> sempre.</p>
+    </li>
+    <li>No fim do exercício, o instrutor faz o release: um pull request da <code>develop</code> para a <code>main</code>. Depois do merge, o GitHub Pages publica a nova versão em um ou dois minutos, em <code>https://pabloregis.github.io/mural-da-turma/</code>.</li>
+  </ol>
+  <div class="note ok">
+    <strong>Confira</strong>
+    <p>Seu cartão aparece no <code>index.html</code> da sua <code>develop</code>, junto com os dos colegas. Depois do release, aparece também no mural publicado. Se o seu pull request teve o merge depois do release, o cartão entra no próximo.</p>
+  </div>
+  <div class="note warn">
+    <strong>Se der errado</strong>
+    <ul>
+      <li><code>Permission to ... denied</code> ou erro <code>403</code> (“permissão negada”) no <code>push</code>: você ainda não aceitou o convite do repositório, ou o terminal ainda usa a chave do <code>codespace-aula</code>. Aceite o convite, rode <code>unset GITHUB_TOKEN</code> e o <code>push</code> de novo; se continuar, chame o instrutor.</li>
+      <li><code>rejected</code> (recusado) no primeiro <code>push</code> da sua branch: outra pessoa já usou esse nome de branch. Troque o nome com <code>git branch -m cartao-OUTRO-NOME</code> (m = move, renomear) e rode <code>git push -u origin cartao-OUTRO-NOME</code>.</li>
+      <li>Fez o commit na <code>develop</code> sem criar a branch? Crie agora com <code>git switch -c cartao-SEU-NOME</code>: o commit vai junto. Depois, envie a branch.</li>
+    </ul>
+  </div>
+  <div class="note">
+    <strong>Por que cada um na sua branch</strong>
+    <p>A <code>develop</code> é a versão que todo o time usa. Ninguém envia direto para ela: o trabalho chega por pull request, e alguém revisa antes. Se o seu pull request aparecer com <strong>base: main</strong>, clique em <strong>Edit</strong> (editar), ao lado do título, e troque a base para <code>develop</code>. Se duas pessoas mudarem a mesma linha, o GitHub mostra o conflito no pull request antes do merge.</p>
+  </div>
+</section>
+
+<section id="ex5" class="ex">
+  <p class="eyebrow">Exercício 5 · 30 min</p>
+  <h2>Frontend e componentes</h2>
+  <p>Frontend é a parte do sistema que o usuário vê e usa. No navegador, toda página é feita de três linguagens, e o mural da turma tem as três:</p>
+  <div class="tablebox"><table>
+    <thead><tr><th>Arquivo</th><th>Linguagem</th><th>Papel</th></tr></thead>
+    <tbody>
+      <tr><td><code>index.html</code></td><td>HTML</td><td>O conteúdo e a estrutura: títulos, parágrafos, listas, botões.</td></tr>
+      <tr><td><code>style.css</code></td><td>CSS</td><td>A aparência: cores, fontes, espaços, a grade dos cartões.</td></tr>
+      <tr><td><code>script.js</code></td><td>JavaScript</td><td>O comportamento: o botão que sorteia um colega.</td></tr>
+    </tbody>
+  </table></div>
+  <p>As tags (etiquetas, as marcações entre <code>&lt;</code> e <code>&gt;</code>) do HTML também são palavras em inglês: <code>html</code> é a página inteira, <code>head</code> é cabeça (as informações da página), <code>title</code> é o título da aba, <code>meta</code> traz informações extras, <code>body</code> é o corpo (o que aparece na tela), <code>footer</code> é rodapé, <code>h1</code> é heading (título) de nível 1, <code>p</code> é paragraph (parágrafo), <code>ul</code> é unordered list (lista sem números), <code>li</code> é list item (item da lista), <code>strong</code> é forte (negrito) e <code>button</code> é botão.</p>
+
+  <h3>Parte A: explore com as ferramentas do navegador</h3>
+  <ol>
+    <li>Abra o mural publicado, em <code>https://pabloregis.github.io/mural-da-turma/</code>, e aperte <kbd>F12</kbd>. Se o seu cartão ainda não estiver lá, use o de um colega. É o DevTools (ferramentas do desenvolvedor), a ferramenta de inspeção do navegador. Se o navegador perguntar se quer abrir as ferramentas, confirme. Se o navegador estiver em português, as abas podem aparecer como <strong>Elementos</strong> e <strong>Estilos</strong>.</li>
+    <li>Na aba <strong>Elements</strong> (elementos), clique na seta de seleção e depois na frase do seu cartão (não no nome). O <code>&lt;li&gt;</code> dele aparece destacado; se aparecer o <code>&lt;strong&gt;</code>, clique na linha do <code>&lt;li&gt;</code>, logo acima.</li>
+    <li>No painel <strong>Styles</strong> (estilos), ache a regra <code>.cartoes li</code> e mude o <code>background</code> (fundo) para <code>lightyellow</code> (amarelo-claro). A mudança é só no seu navegador: recarregue e ela some.</li>
+    <li>Na aba <strong>Console</strong> (console, onde se digitam comandos de JavaScript), <strong>digite</strong> (sem colar) e aperte <kbd>Enter</kbd>. Se colar, o navegador pode mostrar um aviso pedindo para digitar <code>allow pasting</code> (“permitir colar”), uma proteção contra golpes:
+      <div class="cmd"><pre>document.querySelector("h1").textContent = "Mural da melhor turma"</pre></div>
+      <p>Em português: “no documento, procure o <code>h1</code> e troque o texto dele”.</p>
+    </li>
+  </ol>
+
+  <h3>Parte B: o problema da repetição</h3>
+  <p>Abra o <code>index.html</code> do mural no editor. O mesmo cartão está escrito 30 vezes. Se o time quiser mostrar o curso de cada pessoa, alguém precisa editar 30 cartões, e vai esquecer algum.</p>
+  <p>A solução do frontend moderno é o <strong>componente</strong>: um pedaço de tela escrito uma vez, que recebe dados e pode ser usado quantas vezes for preciso. Um cartão, um botão e um menu são componentes.</p>
+
+  <h3>Parte C: um componente em JavaScript</h3>
+  <p>Abra o arquivo <code>componentes.html</code> do mural no editor. Para ver a página, abra um segundo terminal (o <strong>+</strong> do painel do terminal) e rode um servidor local dentro da pasta do mural:</p>
+  <div class="cmd"><pre>cd /workspaces/codespace-aula/mural-da-turma
+python3 -m http.server 8000   # server = servidor: serve os arquivos da pasta no endereço da porta 8000</pre></div>
+  <p>O Codespace avisa que a porta 8000 foi aberta: clique em <strong>Open in Browser</strong> (abrir no navegador), ou abra a aba <strong>Ports</strong> (portas) e clique no ícone de globo ao lado da porta 8000. Abre uma aba com o mural, porque o servidor mostra o <code>index.html</code> primeiro. Na barra de endereço dessa aba, acrescente <code>/componentes.html</code> no fim do endereço e aperte <kbd>Enter</kbd>. Para parar o servidor no fim, aperte <kbd>Ctrl</kbd>+<kbd>C</kbd>. O trecho importante é este:</p>
+  <div class="cmd"><pre>function Cartao(pessoa) {
+  return `&lt;li&gt;&lt;strong&gt;${pessoa.nome}&lt;/strong&gt; ${pessoa.frase}&lt;/li&gt;`;
+}
+
+const pessoas = [
+  { nome: "Ana", frase: "Gosto de café e de futebol." },
+  { nome: "Bruno", frase: "Quero trabalhar com jogos." },
+];
+
+document.querySelector("#lista").innerHTML = pessoas.map(Cartao).join("");</pre></div>
+  <ul>
+    <li><code>function Cartao(pessoa)</code>: function quer dizer “função”. Esta é o componente. Recebe uma pessoa e devolve (<code>return</code>) o HTML de um cartão.</li>
+    <li><code>const pessoas</code>: os dados, uma pessoa por linha. <code>const</code> vem de constant (constante).</li>
+    <li><code>pessoas.map(Cartao)</code>: map quer dizer “mapear”. Chama o <code>Cartao</code> uma vez para cada pessoa.</li>
+    <li><code>.join("")</code>: join quer dizer “juntar”. Junta os cartões num texto só. <code>innerHTML</code> é o “HTML de dentro” da lista: é onde os cartões entram.</li>
+  </ul>
+  <p>Agora faça duas mudanças e recarregue o navegador depois de cada uma:</p>
+  <ol>
+    <li><strong>Mude o componente.</strong> Dentro do <code>Cartao</code>, troque <code>${pessoa.frase}</code> por <code>&lt;em&gt;${pessoa.frase}&lt;/em&gt;</code> (<code>em</code> = emphasis, ênfase: deixa em itálico). Todos os cartões mudam juntos, com uma edição só.</li>
+    <li><strong>Mude os dados.</strong> Acrescente uma linha com o seu nome na lista <code>pessoas</code>. Seu cartão aparece com o mesmo visual dos outros, sem escrever HTML.</li>
+  </ol>
+  <div class="note ok">
+    <strong>Confira</strong>
+    <p>Todas as frases ficaram em itálico, e o seu cartão aparece no fim da lista.</p>
+  </div>
+  <p>Essas mudanças eram só um teste. Para descartar e deixar o mural como estava, use o que você aprendeu no exercício 1: no primeiro terminal (o segundo está ocupado pelo servidor), rode <code>git restore componentes.html</code>.</p>
+
+  <h3>O mesmo componente em React</h3>
+  <p>React é a biblioteca de componentes mais usada no mercado. O mesmo cartão em React fica assim:</p>
+  <div class="cmd"><pre>function Cartao({ nome, frase }) {
+  return &lt;li&gt;&lt;strong&gt;{nome}&lt;/strong&gt; {frase}&lt;/li&gt;;
+}
+
+&lt;Cartao nome="Ana" frase="Gosto de café e de futebol." /&gt;</pre></div>
+  <p>A ideia é a que você acabou de usar: uma função que recebe dados e devolve um pedaço de tela. O React usa o componente como se fosse uma tag nova, <code>&lt;Cartao /&gt;</code>. Ferramentas como o Vite preparam esse código para o navegador, que no fim recebe HTML, CSS e JavaScript. E o código fica num repositório Git, com branches e pull requests, como você fez hoje.</p>
+</section>
+
+<section id="depois" class="ex">
+  <h2>Depois da aula</h2>
+  <ul>
+    <li>Guarde a <strong>cola de comandos</strong> que o instrutor compartilhou.</li>
+    <li>Use o <code>primeiro-repo</code> para treinar: crie branches, provoque conflitos e resolva. Abra o seu Codespace em <a href="https://github.com/codespaces">github.com/codespaces</a>. Quando terminar, pare o Codespace nessa mesma página para não gastar horas à toa.</li>
+    <li>Para continuar com frontend, faça os cursos de HTML e CSS do <a href="https://developer.mozilla.org/pt-BR/docs/Learn_web_development">MDN Learn</a>, em português.</li>
+    <li>Para continuar com Git, leia os capítulos 1 a 3 do livro <a href="https://git-scm.com/book/pt-br/v2">Pro Git</a>, gratuito e em português.</li>
+    <li>Para continuar com componentes, faça o tutorial <a href="https://pt-br.react.dev/learn">Início rápido do React</a>, em português.</li>
+  </ul>
+</section>
+
+</div>
+<script>
+document.querySelectorAll('.cmd').forEach(box=>{
+  const b=document.createElement('button');b.type='button';b.className='copy';b.textContent='copiar';
+  b.addEventListener('click',async()=>{
+    const t=box.querySelector('pre').innerText.split('\n').filter(l=>!l.trim().startsWith('#')).join('\n').trim();
+    try{await navigator.clipboard.writeText(t);b.textContent='copiado'}
+    catch{const r=document.createRange();r.selectNodeContents(box.querySelector('pre'));const s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent='selecionado'}
+    setTimeout(()=>b.textContent='copiar',1500);
+  });
+  box.appendChild(b);
+});
+</script>
+</body></html>

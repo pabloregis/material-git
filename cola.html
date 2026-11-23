@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head><body>
+<title>Cola de Git</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;700&display=swap">
+<style>
+/* Layout: coluna única de leitura com índice no topo; blocos de comando escuros como o terminal */
+:root{
+  --bg:#f5f4f0; --surface:#fbfaf7; --surface-alt:#ecebe5; --line:#dcd9cf;
+  --ink:#1b2230; --ink-2:#596173;
+  --accent:#1f5c99; --accent-soft:#e3ecf6;
+  --ok:#2f7d4f; --ok-soft:#e2f1e8; --warn:#8a5a00; --warn-soft:#fbf1dc;
+  --code-bg:#1b2230; --code-fg:#e9ecf2; --code-muted:#93a0b5; --code-add:#8fd6a8; --code-del:#f1a3a3;
+  --display:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12161e; --surface:#181e28; --surface-alt:#212937; --line:#2e3746;
+  --ink:#e6e9ef; --ink-2:#a3abba; --accent:#8ab8e6; --accent-soft:#1d2d42;
+  --ok:#8fd6a8; --ok-soft:#183126; --warn:#e8c06a; --warn-soft:#352a12;
+  --code-bg:#0b0e14; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12161e; --surface:#181e28; --surface-alt:#212937; --line:#2e3746;
+  --ink:#e6e9ef; --ink-2:#a3abba; --accent:#8ab8e6; --accent-soft:#1d2d42;
+  --ok:#8fd6a8; --ok-soft:#183126; --warn:#e8c06a; --warn-soft:#352a12;
+  --code-bg:#0b0e14; color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.65 var(--body)}
+.wrap{max-width:820px;margin:0 auto;padding-block:40px 80px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:48px}
+h1,h2,h3{font-family:var(--display);font-weight:700;text-wrap:balance;line-height:1.2;margin:0}
+h1{font-size:clamp(1.9rem,5.5vw,2.6rem);letter-spacing:-.015em}
+h2{font-size:1.5rem}
+h3{font-size:1.08rem}
+p{margin:0;max-width:68ch}
+section{display:flex;flex-direction:column;gap:16px;min-width:0}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+code{font-family:var(--mono);font-size:.88em;background:var(--surface-alt);padding:1px 5px;border-radius:4px;overflow-wrap:anywhere}
+kbd{font-family:var(--mono);font-size:.82em;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px;background:var(--surface)}
+.eyebrow{font:600 .76rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.lede{font-size:1.12rem;color:var(--ink-2)}
+ul,ol{margin:0;padding-left:1.3em;display:flex;flex-direction:column;gap:6px;max-width:68ch}
+pre{margin:0;background:var(--code-bg);color:var(--code-fg);font:13.5px/1.6 var(--mono);padding:14px 16px;border-radius:8px;overflow-x:auto}
+pre .c{color:var(--code-muted)} pre .add{color:var(--code-add)} pre .del{color:var(--code-del)}
+.cmd{position:relative;min-width:0}
+.cmd pre{padding-right:76px}
+.copy{position:absolute;top:8px;right:8px;font:600 .72rem var(--mono);background:var(--code-bg);color:var(--code-muted);border:1px solid var(--code-muted);border-radius:5px;padding:3px 8px;cursor:pointer}
+.copy:hover{color:var(--code-fg);border-color:var(--code-fg)}
+.tablebox{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.95rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:700}
+td code{white-space:nowrap}
+.note{border:1px solid var(--line);border-radius:8px;padding:14px 16px;background:var(--surface);display:flex;flex-direction:column;gap:8px}
+.note.warn{background:var(--warn-soft);border-color:transparent}
+.note.ok{background:var(--ok-soft);border-color:transparent}
+.note strong:first-child{font-family:var(--display)}
+.vscode{border-left:3px solid var(--accent);padding:4px 0 4px 14px;display:flex;flex-direction:column;gap:6px}
+.vscode .eyebrow{color:var(--accent)}
+.toc{display:flex;flex-wrap:wrap;gap:8px}
+.toc a{font:500 .88rem var(--body);text-decoration:none;padding:4px 10px;border-radius:999px;background:var(--surface-alt);color:var(--ink)}
+.toc a:hover{background:var(--accent-soft)}
+.ex{border-top:1px solid var(--line);padding-top:32px}
+.check{display:flex;gap:10px;align-items:flex-start}
+.check input{margin-top:6px;width:18px;height:18px;accent-color:var(--ok)}
+.areas{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;align-items:stretch}
+.areas div{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px;display:flex;flex-direction:column;gap:4px}
+.areas b{font-family:var(--display)}
+.areas small{color:var(--ink-2);font-size:.86rem;line-height:1.45}
+.areas i{font:500 .8rem var(--mono);color:var(--accent);font-style:normal}
+@media print{.copy,.toc{display:none}}
+.topo-pagina{display:flex;flex-direction:column;gap:14px}
+.pt{color:var(--ink-2);font-size:.9em}
+.fala{background:var(--ok-soft);border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
+.fala .eyebrow{color:var(--ink-2)}
+.fala p{font-style:italic}
+</style>
+<div class="wrap">
+
+<header class="topo-pagina">
+  <p class="eyebrow">Treinamento trainee · referência rápida</p>
+  <h1>Cola de Git</h1>
+  <p class="lede">Os comandos do treinamento, com a tradução de cada palavra. Na dúvida, comece por <code>git status</code>.</p>
+</header>
+
+<section>
+  <h2>O ciclo de todo dia</h2>
+  <p>Nos times que usam a <code>develop</code>, como no mural, o trabalho parte dela, e a <code>main</code> só recebe a <code>develop</code> nos releases (lançamentos). Em times sem <code>develop</code>, troque <code>develop</code> por <code>main</code>.</p>
+  <div class="cmd"><pre>git switch develop                <span class="c"># troca para a develop (desenvolvimento)</span>
+git pull                          <span class="c"># puxa o que o time enviou</span>
+git switch -c minha-tarefa        <span class="c"># cria a branch da tarefa e troca para ela</span>
+<span class="c"># ... edita os arquivos ...</span>
+git status                        <span class="c"># situação: o que mudou?</span>
+git add .                         <span class="c"># adiciona tudo à preparação</span>
+git commit -m "Diz o que mudou"   <span class="c"># registra, com mensagem</span>
+git push -u origin minha-tarefa   <span class="c"># empurra para o GitHub; depois abra o pull request para a develop</span></pre></div>
+</section>
+
+<section>
+  <h2>Configurar (uma vez por Codespace)</h2>
+  <div class="tablebox"><table>
+    <thead><tr><th>Comando</th><th>O que faz</th></tr></thead>
+    <tbody>
+    <tr><td><code>git config --global user.name "Seu Nome"</code></td><td>Nome do usuário (user name) que aparece nos commits.</td></tr>
+    <tr><td><code>git config --global user.email "seu-email@exemplo.com"</code></td><td>E-mail do usuário. Use o da conta do GitHub.</td></tr>
+    <tr><td><code>git config --global init.defaultBranch main</code></td><td>Repositórios novos começam na <code>main</code> (default = padrão).</td></tr>
+    <tr><td><code>git config --global core.editor "code --wait"</code></td><td>O Git abre o editor quando pedir um texto.</td></tr>
+    <tr><td><code>git config --global pull.rebase false</code></td><td>Ao puxar (<code>pull</code>), junta com merge (mesclar) quando você e o GitHub têm commits diferentes.</td></tr>
+  </tbody></table></div>
+</section>
+
+<section>
+  <h2>Criar ou baixar um repositório</h2>
+  <div class="tablebox"><table>
+    <thead><tr><th>Comando</th><th>Em português</th><th>O que faz</th></tr></thead>
+    <tbody>
+    <tr><td><code>git init -b main</code></td><td>iniciar</td><td>Transforma a pasta atual em repositório, começando na <code>main</code>.</td></tr>
+    <tr><td><code>git clone URL</code></td><td>clonar</td><td>Baixa uma cópia de um repositório do GitHub numa pasta nova.</td></tr>
+  </tbody></table></div>
+</section>
+
+<section>
+  <h2>Ver o que está acontecendo</h2>
+  <div class="tablebox"><table>
+    <thead><tr><th>Comando</th><th>Em português</th><th>O que faz</th></tr></thead>
+    <tbody>
+    <tr><td><code>git status</code></td><td>situação</td><td>Arquivos mudados, preparados e a branch atual.</td></tr>
+    <tr><td><code>git diff</code></td><td>diferença</td><td>O que mudou e ainda não foi preparado.</td></tr>
+    <tr><td><code>git diff --staged</code></td><td>diferença do que está preparado</td><td>O que vai entrar no próximo commit.</td></tr>
+    <tr><td><code>git log --oneline</code></td><td>histórico, uma linha por commit</td><td>Histórico resumido, um commit por linha.</td></tr>
+    <tr><td><code>git log --oneline --graph --all</code></td><td>histórico com o desenho de todas as branches</td><td>Histórico com o desenho das branches.</td></tr>
+  </tbody></table></div>
+</section>
+
+<section>
+  <h2>Como ler o git status e outras respostas</h2>
+  <div class="tablebox"><table>
+    <thead><tr><th>O Git diz</th><th>Em português</th></tr></thead>
+    <tbody>
+    <tr><td><code>On branch main</code></td><td>Você está na branch main.</td></tr>
+    <tr><td><code>No commits yet</code></td><td>Ainda não há commits.</td></tr>
+    <tr><td><code>Untracked files</code></td><td>Arquivos não acompanhados: o Git ainda não guarda versões deles.</td></tr>
+    <tr><td><code>Changes not staged for commit</code></td><td>Mudanças ainda não preparadas. Use <code>git add</code>.</td></tr>
+    <tr><td><code>Changes to be committed</code></td><td>Mudanças preparadas, prontas para o commit.</td></tr>
+    <tr><td><code>modified</code> / <code>new file</code> / <code>deleted</code></td><td>modificado / arquivo novo / apagado.</td></tr>
+    <tr><td><code>Your branch is up to date with 'origin/main'</code></td><td>Sua branch está igual à do GitHub.</td></tr>
+    <tr><td><code>Your branch is ahead of 'origin/develop' by 1 commit</code></td><td>Você tem 1 commit que o GitHub não tem. Use <code>git push</code>.</td></tr>
+    <tr><td><code>Unmerged paths</code> / <code>both modified</code></td><td>Arquivos não mesclados / modificado nos dois lados: há um conflito a resolver.</td></tr>
+    <tr><td><code>1 file changed, 2 insertions(+), 1 deletion(-)</code></td><td>1 arquivo alterado, 2 linhas inseridas, 1 apagada.</td></tr>
+    <tr><td><code>Switched to a new branch 'nome'</code></td><td>Trocou para uma branch nova.</td></tr>
+    <tr><td><code>Switched to branch 'nome'</code></td><td>Trocou para a branch.</td></tr>
+    <tr><td><code>branch 'nome' set up to track 'origin/nome'</code></td><td>A branch foi ligada à do GitHub: depois disso, basta <code>git push</code> e <code>git pull</code>.</td></tr>
+    <tr><td><code>Already up to date.</code></td><td>Já está atualizado: não havia nada novo para puxar ou mesclar.</td></tr>
+    <tr><td><code>Everything up-to-date</code></td><td>Tudo atualizado: não havia nada novo para enviar.</td></tr>
+    <tr><td><code>Fast-forward</code></td><td>Avanço rápido: o merge só avançou a branch, sem commit de merge.</td></tr>
+    <tr><td><code>Auto-merging arquivo</code></td><td>Mesclando o arquivo automaticamente.</td></tr>
+    <tr><td><code>(use "git add &lt;file&gt;..." ...)</code></td><td>Dica do Git: use <code>git add &lt;arquivo&gt;</code> para… As linhas entre parênteses sugerem o próximo comando.</td></tr>
+    <tr><td><code>(use "git rm --cached &lt;file&gt;..." to unstage)</code></td><td>Dica: para tirar da preparação. No treinamento, use <code>git restore --staged</code>.</td></tr>
+    <tr><td><code>nothing added to commit but untracked files present</code></td><td>Nada foi preparado, mas há arquivos não acompanhados. Use <code>git add</code>.</td></tr>
+    <tr><td><code>no changes added to commit</code></td><td>Nenhuma mudança foi preparada para o commit. Use <code>git add</code>.</td></tr>
+    <tr><td><code>You have unmerged paths</code></td><td>Você tem arquivos não mesclados: termine o conflito com <code>git add</code> e <code>git commit</code>.</td></tr>
+    <tr><td><code>create mode 100644 arquivo</code></td><td>Arquivo novo registrado; o número é a permissão do arquivo e pode ser ignorado.</td></tr>
+    <tr><td><code>(HEAD -&gt; main)</code> no <code>git log</code></td><td>Você está na <code>main</code>, e ela está nesse commit. Outros nomes entre parênteses mostram onde estão as outras branches.</td></tr>
+    <tr><td><code>(main)</code> no terminal</td><td>A branch atual. Não muda durante um conflito: para saber se há um merge em andamento, use <code>git status</code>.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>Registrar mudanças</h2>
+  <div class="tablebox"><table>
+    <thead><tr><th>Comando</th><th>Em português</th><th>O que faz</th></tr></thead>
+    <tbody>
+    <tr><td><code>git add arquivo</code></td><td>adicionar</td><td>Põe um arquivo na preparação.</td></tr>
+    <tr><td><code>git add .</code></td><td>adicionar tudo</td><td>Põe na preparação tudo o que mudou na pasta.</td></tr>
+    <tr><td><code>git commit -m "mensagem"</code></td><td>registrar, com mensagem</td><td>Grava o que está preparado. Comece a mensagem com um verbo.</td></tr>
+    <tr><td><code>git restore arquivo</code></td><td>restaurar</td><td>Volta o arquivo ao último commit, descartando as mudanças não preparadas. Não tem volta.</td></tr>
+    <tr><td><code>git restore --staged arquivo</code></td><td>restaurar da preparação</td><td>Tira o arquivo da preparação, sem perder a mudança.</td></tr>
+  </tbody></table></div>
+</section>
+
+<section>
+  <h2>Branches (ramos)</h2>
+  <div class="tablebox"><table>
+    <thead><tr><th>Comando</th><th>Em português</th><th>O que faz</th></tr></thead>
+    <tbody>
+    <tr><td><code>git branch</code></td><td>ramo</td><td>Lista as branches; a atual tem <code>*</code>.</td></tr>
+    <tr><td><code>git switch -c nome</code></td><td>trocar, criando</td><td>Cria a branch e troca para ela.</td></tr>
+    <tr><td><code>git branch -m novo-nome</code></td><td>renomear (move) a branch</td><td>Troca o nome da branch atual.</td></tr>
+    <tr><td><code>git switch nome</code></td><td>trocar</td><td>Troca para uma branch que já existe.</td></tr>
+    <tr><td><code>git merge nome</code></td><td>mesclar</td><td>Junta a branch <code>nome</code> na branch atual.</td></tr>
+    <tr><td><code>git merge --abort</code></td><td>cancelar a mesclagem</td><td>Desiste de um merge com conflito.</td></tr>
+  </tbody></table></div>
+</section>
+
+<section>
+  <h2>GitHub</h2>
+  <div class="tablebox"><table>
+    <thead><tr><th>Comando</th><th>Em português</th><th>O que faz</th></tr></thead>
+    <tbody>
+    <tr><td><code>unset GITHUB_TOKEN</code></td><td>desfazer GITHUB_TOKEN</td><td>Tira do terminal a chave do Codespace, que só vale para o <code>codespace-aula</code>. Rode antes do <code>gh auth login</code> e em cada terminal novo, antes do <code>push</code>.</td></tr>
+    <tr><td><code>gh auth login</code></td><td>autenticar, entrar</td><td>Entra no GitHub pelo navegador (<strong>GitHub.com</strong>, <strong>Login with a web browser</strong>, <strong>HTTPS</strong>, <strong>Y</strong>) para poder enviar a outros repositórios.</td></tr>
+    <tr><td><code>gh auth setup-git</code></td><td>autenticação do gh: configurar o Git</td><td>Faz o <code>git push</code> usar o login do <code>gh</code>. Rode logo depois do <code>gh auth login</code>; não mostra nada quando dá certo.</td></tr>
+    <tr><td><code>git remote -v</code></td><td>remotos, detalhado (verbose)</td><td>Mostra o endereço do GitHub ligado ao repositório.</td></tr>
+    <tr><td><code>git remote set-url origin URL</code></td><td>definir o endereço da origem</td><td>Corrige o endereço do remoto.</td></tr>
+    <tr><td><code>git remote add origin URL</code></td><td>adicionar remoto “origem”</td><td>Liga o repositório local a um do GitHub.</td></tr>
+    <tr><td><code>git push -u origin nome</code></td><td>empurrar para a origem</td><td>Primeiro envio de uma branch.</td></tr>
+    <tr><td><code>git push</code></td><td>empurrar</td><td>Envios seguintes da mesma branch.</td></tr>
+    <tr><td><code>git pull</code></td><td>puxar</td><td>Traz e junta os commits novos do GitHub.</td></tr>
+  </tbody></table></div>
+</section>
+
+<section>
+  <h2>Resolver um conflito</h2>
+  <ol>
+    <li>Abra o arquivo que o Git apontou e procure <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>.</li>
+    <li>Entre <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</code> e <code>=======</code> está a sua versão (<code>HEAD</code> = onde você está); entre <code>=======</code> e <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code>, a que chega.</li>
+    <li>Deixe o texto final como deve ficar e apague as três linhas de marcação. No editor, use os botões acima do conflito: <strong>Accept Current Change</strong> (fica a sua), <strong>Accept Incoming Change</strong> (fica a que chega) ou <strong>Accept Both Changes</strong> (ficam as duas). Em português: <strong>Aceitar Alteração Atual</strong>, <strong>de Entrada</strong> ou <strong>Ambas as Alterações</strong>.</li>
+    <li>Rode <code>git add arquivo</code> e <code>git commit -m "Resolve conflito em arquivo"</code>.</li>
+  </ol>
+</section>
+
+<section>
+  <h2>Mensagens que assustam</h2>
+  <div class="tablebox"><table>
+    <thead><tr><th>Mensagem</th><th>Em português</th><th>O que fazer</th></tr></thead>
+    <tbody>
+      <tr><td><code>not a git repository</code></td><td>não é um repositório Git</td><td>Você está fora da pasta do projeto. Use <code>cd</code> até ela.</td></tr>
+      <tr><td><code>rejected ... fetch first</code> numa branch que você já tinha enviado</td><td>recusado: busque antes</td><td>O GitHub tem commits novos. Rode <code>git pull</code> e depois <code>git push</code>. Se o <code>pull</code> abrir uma aba no editor com <code>Merge branch...</code>, feche a aba.</td></tr>
+      <tr><td><code>Your local changes ... would be overwritten</code></td><td>suas mudanças locais seriam sobrescritas</td><td>Faça commit das mudanças antes de trocar de branch ou fazer pull.</td></tr>
+      <tr><td><code>nothing to commit, working tree clean</code></td><td>nada para registrar, pasta limpa</td><td>Não há mudança. Confira se salvou o arquivo.</td></tr>
+      <tr><td><code>CONFLICT (content): Merge conflict in arquivo</code></td><td>conflito de conteúdo no arquivo</td><td>Resolva como na seção acima.</td></tr>
+      <tr><td><code>error: pathspec '...' did not match any file(s) known to git</code> depois de um <code>git commit</code></td><td>o caminho não corresponde a nenhum arquivo conhecido</td><td>Faltou o <code>-m</code>: o Git leu a mensagem como nome de arquivo. Rode <code>git commit -m "mensagem"</code>.</td></tr>
+      <tr><td><code>Repository not found</code></td><td>repositório não encontrado</td><td>O endereço está errado. Veja com <code>git remote -v</code> e corrija com <code>git remote set-url origin URL</code>.</td></tr>
+      <tr><td><code>remote origin already exists</code></td><td>o remoto origin já existe</td><td>Confira com <code>git remote -v</code>. Se o endereço estiver errado, use <code>git remote set-url</code>.</td></tr>
+      <tr><td><code>rejected</code> no primeiro envio de uma branch</td><td>recusado</td><td>Outra pessoa já usou esse nome de branch. Renomeie com <code>git branch -m outro-nome</code> e envie com <code>git push -u origin outro-nome</code>.</td></tr>
+      <tr><td><code>There is no tracking information for the current branch</code></td><td>a branch atual não está ligada a nenhuma do GitHub</td><td>A branch ainda não foi enviada. Use <code>git push -u origin nome-da-branch</code>.</td></tr>
+            <tr><td><code>Need to specify how to reconcile divergent branches</code></td><td>é preciso dizer como reconciliar branches que divergiram</td><td>Rode <code>git config --global pull.rebase false</code> e o <code>git pull</code> de novo.</td></tr>
+      <tr><td><code>Missing or invalid credentials</code>, <code>ECONNREFUSED</code>, <code>No anonymous write access</code></td><td>credenciais ausentes ou inválidas; sem acesso de escrita anônimo</td><td>O Git ficou sem o seu login. Rode <code>unset GITHUB_TOKEN</code> e <code>gh auth setup-git</code> e tente o <code>push</code> de novo.</td></tr>
+      <tr><td><code>Permission to ... denied</code> ou <code>403</code></td><td>permissão negada</td><td>Aceite o convite do repositório no GitHub, rode <code>unset GITHUB_TOKEN</code> (o terminal ainda usa a chave que só vale para o <code>codespace-aula</code>) e tente de novo. Se continuar, chame o instrutor.</td></tr>
+      <tr><td><code>hint: Waiting for your editor to close the file...</code></td><td>esperando você fechar o arquivo no editor</td><td>O Git abriu uma aba no editor. Escreva a mensagem na primeira linha, salve e feche a aba.</td></tr>
+      <tr><td><code>\ No newline at end of file</code></td><td>sem quebra de linha no fim do arquivo</td><td>Aviso do <code>git diff</code>: o arquivo termina sem uma linha em branco. Pode ignorar.</td></tr>
+      <tr><td>O terminal mostra <code>:</code> ou <code>(END)</code> e não aceita comandos</td><td>(END) = fim</td><td>A saída é longa e abriu numa tela de leitura. Aperte <kbd>q</kbd> (de quit, sair).</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+<kbd>V</kbd> não cola no terminal</td><td></td><td>Clique com o botão direito no terminal e depois no botão <strong>Paste</strong> (colar).</td></tr>
+      <tr><td>Abriu uma tela preta com <code>~</code> no canto</td><td>é o editor Vim</td><td>Aperte <kbd>Esc</kbd>, digite <code>:wq</code> e <kbd>Enter</kbd> para salvar e sair.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>No Codespace</h2>
+  <div class="tablebox"><table><tbody>
+    <tr><td><strong>☰ › Terminal › Novo Terminal</strong></td><td>Abre o terminal integrado (o atalho de teclado para abrir um terminal não funciona no Codespace do navegador).</td></tr>
+    <tr><td>Painel <strong>Source Control</strong> e botão <strong>Publish Branch</strong></td><td>Ignore. No treinamento, tudo é pelo terminal.</td></tr>
+  </tbody></table></div>
+</section>
+
+</div>
+<script>
+document.querySelectorAll('.cmd').forEach(box=>{
+  const b=document.createElement('button');b.type='button';b.className='copy';b.textContent='copiar';
+  b.addEventListener('click',async()=>{
+    const t=box.querySelector('pre').innerText.split('\n').filter(l=>!l.trim().startsWith('#')).join('\n').trim();
+    try{await navigator.clipboard.writeText(t);b.textContent='copiado'}
+    catch{const r=document.createRange();r.selectNodeContents(box.querySelector('pre'));const s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent='selecionado'}
+    setTimeout(()=>b.textContent='copiar',1500);
+  });
+  box.appendChild(b);
+});
+</script>
+</body></html>
